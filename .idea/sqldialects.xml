@@ -2,8 +2,10 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/PRODUCCION_EVOUCHER/SUBIR_XML.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/PRODUCCION_GENESYS/MIGUEL_USUARIOS_RELIQUIDACION.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/PRUEBAS_GENESYS/FACTURA_REEMBOLSO.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/PRUEBAS_GENESYS/consultas varias.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/PRUEBAS_GENESYS/subirUsuarios.sql" dialect="PostgreSQL" />
     <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>
