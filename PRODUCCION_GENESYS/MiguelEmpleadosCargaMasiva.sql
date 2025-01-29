@@ -50,6 +50,43 @@ and c.estado in ('ACT','SUS');
 
 
 SELECT
+    ti.nombre as tipo_identificacion,
+    e.numero as cedula,
+    e.primernombre,
+    e.segundonombre,
+    e.primerapellido,
+    e.segundoapellido,
+    e.email,
+    EXTRACT(YEAR FROM e.fechanacimiento) as anio_nacimiento,
+    EXTRACT(MONTH FROM e.fechanacimiento) as mes_nacimiento,
+    EXTRACT(DAY FROM e.fechanacimiento) as dia_nacimiento,
+    '' as parentesco,
+    case when e.discapacitado = true then 'SI' else 'NO' end as discapacitado,
+    CASE
+        WHEN e.estadocivil = 'SO' THEN 'SOLTERO'
+        WHEN e.estadocivil = 'CA' THEN 'CASADO'
+        WHEN e.estadocivil = 'DI' THEN 'DIVORCIADO'
+        WHEN e.estadocivil = 'VI' THEN 'VIUDO'
+        WHEN e.estadocivil = 'UN' THEN 'EN UNION DE HECHO'
+        WHEN e.estadocivil = 'SE' THEN 'SEPARADO'
+        WHEN e.estadocivil = 'TO' THEN 'TODOS'
+        ELSE 'DESCONOCIDO'
+        END as estado_civil,
+    case when e.genero = 'M' then 'MASCULINO' else 'FEMENINO' end as genero,
+    'NO' as transferencia,
+    '' as contratoOrigen,
+    '' as prepagaanterior,
+    '' as coberturasindividuales,
+    '' as coberturasfamiliares,
+    '' as contratantefamilia,
+    '' as parentescocontratante
+FROM entidad e
+left join tipoidentificacion ti on e.tipoidentificacion_id = ti.id
+WHERE e.numero IN ('1103506562');
+
+
+
+SELECT
     cc.afiliacion_id,
     STRING_AGG(cc.codigoservicio::text, ',') AS codigoservicio
 FROM coberturacontratada cc
