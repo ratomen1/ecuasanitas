@@ -71,7 +71,7 @@ SELECT
         WHEN e.estadocivil = 'SE' THEN 'SEPARADO'
         WHEN e.estadocivil = 'TO' THEN 'TODOS'
         ELSE 'DESCONOCIDO'
-        END as estado_civil,
+    END as estado_civil,
     case when e.genero = 'M' then 'MASCULINO' else 'FEMENINO' end as genero,
     'NO' as transferencia,
     '' as contratoOrigen,
