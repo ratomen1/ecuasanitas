@@ -21,7 +21,7 @@ SELECT
         WHEN e.estadocivil = 'SE' THEN 'SEPARADO'
         WHEN e.estadocivil = 'TO' THEN 'TODOS'
         ELSE 'DESCONOCIDO'
-        END as estado_civil,
+    END as estado_civil,
     case when e.genero = 'M' then 'MASCULINO' else 'FEMENINO' end as genero,
     'SI' as transferencia,
     c.numero as contratoOrigen,
@@ -46,6 +46,7 @@ left join LATERAL (
     GROUP BY cc.afiliacion_id
     ) as coberturas on coberturas.afiliacion_id = a.id
 WHERE c.numero in (564096,603294)
+and a.estadoafiliacion = 'ACT'
 and c.estado in ('ACT','SUS');
 
 
