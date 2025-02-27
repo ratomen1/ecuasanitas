@@ -1,5 +1,11 @@
 SELECT
     c.nivel_id,
+    etf.numero as cedulatitularfamilia,
+    etf.nombre as nombretitularfamilia,
+    case WHEN etf.numero = e.numero THEN 'SI' ELSE 'NO' END as titularIgualAfiliado,
+    c.numero as contrato,
+    f.numero as familia,
+    a.numero as afiliacion,
     ti.nombre as tipo_identificacion,
     e.numero as cedula,
     e.primernombre,
@@ -32,6 +38,9 @@ SELECT
     '' as parentescocontratante
 FROM contrato c
 left join afiliacion a on c.id = a.contrato_id and a.estadoafiliacion = 'ACT'
+left join titular tf on a.familia_id = tf.familia_id
+left join entidad etf on tf.entidad_id = etf.id
+left join familia f on a.familia_id = f.id
 left join entrada ep on ep.id = a.parentesco_id
 left join entidad e on a.afiliado_id = e.id
 left join tipoidentificacion ti on e.tipoidentificacion_id = ti.id
@@ -45,7 +54,7 @@ left join LATERAL (
       AND cc.coberturaimplicita = FALSE
     GROUP BY cc.afiliacion_id
     ) as coberturas on coberturas.afiliacion_id = a.id
-WHERE c.numero in (564096,603294)
+WHERE c.numero in (607165)
 and a.estadoafiliacion = 'ACT'
 and c.estado in ('ACT','SUS');
 
