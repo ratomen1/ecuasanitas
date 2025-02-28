@@ -1,32 +1,49 @@
-SELECT ti.nombre                                                     AS tipo_identificacion,
-       e.numero                                                      AS cedula,
-       e.primernombre,
-       e.segundonombre,
-       e.primerapellido,
-       e.segundoapellido,
-       e.email,
-       EXTRACT(YEAR FROM e.fechanacimiento)                          AS anio_nacimiento,
-       EXTRACT(MONTH FROM e.fechanacimiento)                         AS mes_nacimiento,
-       EXTRACT(DAY FROM e.fechanacimiento)                           AS dia_nacimiento,
-       ''                                                            AS parentesco,
-       CASE WHEN e.discapacitado = TRUE THEN 'SI' ELSE 'NO' END      AS discapacitado,
+SELECT ''                                                                                                          AS nivel_id,
+       ''                                                                                                          AS cedulaafiliado,
+       p.nombre                                                                                                    AS nombreafiliado,
+       ''                                                                                                          AS contrato,
+       ''                                                                                                          AS familia,
+       ''                                                                                                          AS afiliacion,
+       'CEDULA'                                                                                                    AS tipo_identificacion,
+       p.cedula,
        CASE
-           WHEN e.estadocivil = 'SO' THEN 'SOLTERO'
-           WHEN e.estadocivil = 'CA' THEN 'CASADO'
-           WHEN e.estadocivil = 'DI' THEN 'DIVORCIADO'
-           WHEN e.estadocivil = 'VI' THEN 'VIUDO'
-           WHEN e.estadocivil = 'UN' THEN 'EN UNION DE HECHO'
-           WHEN e.estadocivil = 'SE' THEN 'SEPARADO'
-           WHEN e.estadocivil = 'TO' THEN 'TODOS'
-           ELSE 'DESCONOCIDO' END                                    AS estado_civil,
-       CASE WHEN e.genero = 'M' THEN 'MASCULINO' ELSE 'FEMENINO' END AS genero,
-       'NO'                                                          AS transferencia,
-       ''                                                            AS contratoOrigen,
-       ''                                                            AS prepagaanterior,
-       ''                                                            AS coberturasindividuales,
-       ''                                                            AS coberturasfamiliares,
-       ''                                                            AS contratantefamilia,
-       ''                                                            AS parentescocontratante
-FROM entidad e
-left JOIN tipoidentificacion ti ON e.tipoidentificacion_id = ti.id
-WHERE e.numero IN ( '1314075902', '1725809121', '0930031828', '0103588760', '1724429657' )
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(p.nombre, ' '), 1) > 4 THEN ''
+           ELSE SPLIT_PART(p.nombre, ' ', 3) END                                                                   AS primer_nombre,
+       CASE
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(p.nombre, ' '), 1) > 4 THEN ''
+           ELSE SPLIT_PART(p.nombre, ' ', 4) END                                                                   AS segundo_nombre,
+       CASE
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(p.nombre, ' '), 1) > 4 THEN p.nombre
+           ELSE SPLIT_PART(p.nombre, ' ', 1) END                                                                   AS primer_apellido,
+       CASE
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(p.nombre, ' '), 1) > 4 THEN ''
+           ELSE SPLIT_PART(p.nombre, ' ', 2) END                                                                   AS segundo_apellido,
+       ''                                                                                                          AS email,
+       SUBSTRING(p.fechanacimiento FROM 1 FOR 4)                                                                   AS anio_nacimiento,
+       SUBSTRING(p.fechanacimiento FROM 6 FOR 2)                                                                   AS mes_nacimiento,
+       SUBSTRING(p.fechanacimiento FROM 9 FOR 2)                                                                   AS dia_nacimiento,
+       ''                                                                                                          AS parentesco,
+       CASE
+           WHEN p.condicioncedulado ILIKE '%DISCAPACIDAD%' THEN 'SI'
+           ELSE 'NO' END                                                                                           AS discapacidad,
+       p.estadocivil                                                                                               AS estado_civil,
+       p.genero,
+       '' as transferencia,
+       '' as contratoOrigen,
+       '' as prepagaanterior,
+       '' as coberturasindividuales,
+       '' as coberturasfamiliares,
+       '' as contratantefamilia,
+       '' as parentescocontratante
+FROM   persona p
+WHERE
+    cedula IN ('1719136390',
+               '1723485114',
+               '1720438884',
+               '1753912128',
+               '1721132445',
+               '1722114814',
+               '0401250469',
+               '1723269005',
+               '1724831597',
+               '1751703941')
