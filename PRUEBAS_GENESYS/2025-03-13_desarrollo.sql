@@ -1,0 +1,1 @@
+select * from telefono order by 1 desc
