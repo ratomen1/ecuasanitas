@@ -1,0 +1,28 @@
+# Directorio temporal del navegador (DataGrip)
+temp/
+
+# Archivos de configuración del IDE
+.idea/
+*.iml
+
+# Archivos de entorno con credenciales
+.env
+*.env
+
+# Archivos Python compilados
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Archivos temporales de exportación
+*.csv
+*.xlsx
+!_read_excel_info.py
+
