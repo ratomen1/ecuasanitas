@@ -30,10 +30,13 @@ contrato → familia → afiliacion → entidad (afiliado)
 afiliacion → coberturacontratada (coberturas activas)
 obligacion → detalle (desglose de cobros)
 comision → detallecomision → afiliacion (comisiones de ventas)
+detalleemision → contrato (órdenes de cobro)
+erroremision → detalleemision (errores en emisión)
 ```
 
 - **IDs**: Generados via tabla `generador` (no secuencias). Cada entidad tiene una fila: `SELECT valor FROM generador WHERE nombre = 'Costo'`. Después de insertar, actualizar el generador manualmente. Ver `clonarcostotarifario.sql` como referencia.
 - **Estados comunes**: `'ACT'` (activo), `'EXC'` (excluido), `'ANU'` (anulado), `'SUS'` (suspendido), `'REG'` (registrado).
+- **Estados de detalleemision**: `'EMITIDA'`, `'PAGADO'`, `'CREDITO'`, `'EN_RECUPERACION'`, `'ADVERTENCIA'`, `'ERROR'`, `'ANULADO'`, `'PAGO_ANULADO'`, `'RECHAZADO'`.
 - **Auditoría**: Las tablas auditadas tienen espejo en esquema `audit` con sufijo `_aud` (ej: `audit.contrato_aud`).
 
 ## Convenciones de Scripts
@@ -60,9 +63,61 @@ El flujo para rotar la BD de pruebas está documentado en `PRUEBAS_GENESYS/BaseD
 - **Tamaño de tablas**: `tamaño_tablas.sql` — reportes por esquema con `pg_total_relation_size`.
 - **Particionamiento**: `particionamiento_detalle.sql` — guía paso a paso (10 pasos) para particionar la tabla `detalle` por rangos de ID de 10M.
 
+---
+
+## Agentes y Herramientas MCP Recomendados para PostgreSQL
+
+### 🔧 MCP Servers Configurados (`.jb/mcp.json`)
+
+| Servidor | Repositorio | Descripción |
+|----------|-------------|-------------|
+| **@modelcontextprotocol/server-postgres** | [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers/tree/main/src/postgres) | **Oficial MCP**. Acceso read-only a PostgreSQL. Exploración de esquemas, queries, metadatos. El más estable. |
+| **@bytebase/dbhub** | [bytebase/dbhub](https://github.com/bytebase/dbhub) | **Zero dependencias**, eficiente en tokens. Postgres, MySQL, SQLite. Exploración rápida de esquemas. 5.7k+ ★ |
+| **MCP-PostgreSQL-Ops** | [call518/MCP-PostgreSQL-Ops](https://github.com/call518/MCP-PostgreSQL-Ops) | **30+ herramientas DBA**: rendimiento, table bloat, autovacuum, índices. PostgreSQL 12+. |
+| **@modelcontextprotocol/server-filesystem** | [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) | Sistema de archivos. Lee/escribe scripts SQL. |
+| **@modelcontextprotocol/server-memory** | [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) | Grafo de conocimiento persistente. Almacena modelo de datos y patrones. |
+| **@modelcontextprotocol/server-github** | [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers/tree/main/src/github) | Integración GitHub: issues, PRs. Necesario para Coding Agents. |
+
+### 🌐 Herramientas Adicionales Recomendadas
+
+| Herramienta | Descripción | Instalación |
+|-------------|-------------|-------------|
+| **mcp-alchemy** | SQLAlchemy MCP para PostgreSQL, MySQL, Oracle, MS-SQL. Multi-schema. | `pip install mcp-alchemy` |
+| **pgmcp** | Consulta Postgres en lenguaje natural. Genera SQL automáticamente. | `npx -y pgmcp` |
+| **SmartDB MCP** | Optimización SQL, detección de salud de índices. | [wenb1n-dev/SmartDB_MCP](https://github.com/wenb1n-dev/SmartDB_MCP) |
+| **Google MCP Toolbox** | MCP server de Google para bases de datos. Soporte enterprise. | [googleapis/mcp-toolbox](https://github.com/googleapis/mcp-toolbox) |
+| **DBchat** | Conversaciones en lenguaje natural con BD. Dashboards. Compatible JDBC. | [skanga/DBchat](https://github.com/skanga/DBchat) |
+
+### 🤖 GitHub Copilot Coding Agent (via @copilot en Issues)
+
+El **Coding Agent** de GitHub Copilot Pro+ puede:
+- Crear scripts SQL nuevos basados en el modelo de datos
+- Optimizar queries existentes
+- Generar reportes de verificación de emisión/cobranza
+- Crear scripts Python con `psycopg2`
+- Revisar y documentar scripts existentes
+
+**Cómo asignar tareas**: Crear un Issue → escribir `@copilot` seguido de la instrucción.
+
+### 📋 Agentes Personalizados por Tarea (DataGrip Custom Agents)
+
+#### Agente: DBA Monitor
+- **Prompt**: "Eres un DBA PostgreSQL. Genera scripts de monitoreo con pg_stat_activity, pg_stat_user_tables, pg_locks. Comentarios en español. SQL keywords en MAYÚSCULAS."
+- **Herramientas**: postgres-genesys, filesystem
+
+#### Agente: Generador de Reportes
+- **Prompt**: "Generas scripts SQL para Ecuasanitas. Usas LEFT JOIN LATERAL, CTEs, funciones ventana. Modelo: contrato → nivel, contrato → afiliacion → coberturacontratada."
+- **Herramientas**: postgres-genesys, postgres-luca, filesystem
+
+#### Agente: Verificador de Emisión
+- **Prompt**: "Verificas emisión mensual de órdenes de cobro (11 pasos). Tabla principal: detalleemision con servicio_id=80."
+- **Herramientas**: postgres-genesys, filesystem
+
+---
+
 ## Advertencias
 
-- Los scripts **no tienen protección contra ejecución accidental** — muchos contienen `UPDATE`/`DELETE` sin transacciones. Revisar siempre antes de ejecutar.
-- Los warnings del IDE sobre "Unable to resolve table" son esperados — el IDE no tiene conexión a la BD real.
-- Nunca ejecutar scripts de `PRODUCCION_GENESYS/` contra el entorno de pruebas sin verificar la conexión activa.
-
+- Los scripts **no tienen protección contra ejecución accidental** — muchos contienen `UPDATE`/`DELETE` sin transacciones.
+- Los warnings del IDE sobre "Unable to resolve table" son esperados.
+- Nunca ejecutar scripts de `PRODUCCION_GENESYS/` contra pruebas sin verificar conexión.
+- Los MCP servers deben usar el usuario `consultas` (solo lectura) por seguridad.

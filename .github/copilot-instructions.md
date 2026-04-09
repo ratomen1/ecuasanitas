@@ -85,3 +85,27 @@ UPDATE generador SET valor = valor + 1 WHERE nombre = 'NombreEntidad'
 - Codificación UTF-8
 - Manejo de errores con `try/except` y rollback apropiado
 
+## Herramientas MCP Disponibles
+
+Este proyecto tiene configurados servidores MCP en `.jb/mcp.json`:
+- **postgres-genesys**: Consultas read-only a la BD principal `genesys`
+- **postgres-luca**: Consultas read-only a la BD de facturación `luca`
+- **dbhub-multi**: Exploración rápida de esquemas (Bytebase)
+- **postgres-ops**: 30+ herramientas DBA profesionales (bloat, autovacuum, índices)
+- **filesystem**: Acceso al sistema de archivos del proyecto
+- **memory**: Grafo de conocimiento persistente
+- **github**: Integración con GitHub para issues y PRs
+
+## Proceso de Verificación de Emisión Mensual
+
+Los scripts de emisión siguen estos pasos (ver `console_51.sql` como referencia):
+- **PASO 0**: Contratos sin cuota del mes de cobranza
+- **PASO 1**: Contratos con malas cuotas (fechainicio > fechapago)
+- **PASO 2**: Órdenes emitidas cuando el mes ya está pagado
+- **PASO 5**: Verificación de duplicados en detalleemision
+- **PASO 7**: Errores de emisión en débito/recaudación domicilio
+- **PASO 8**: Contratos ACT/SUS sin orden emitida
+- **PASO 10**: Contratos con fechapago posterior a emisión
+- **PASO 11**: Órdenes con error de cobranza
+- **Validación cruzada**: Diferencia emisión Genesys vs Luca (via `dblink`)
+

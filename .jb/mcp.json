@@ -1,0 +1,75 @@
+{
+  "servers": {
+    "postgres-genesys": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://consultas@localhost:5432/genesys"
+      ],
+      "description": "Servidor MCP PostgreSQL para la base de datos principal genesys (solo lectura). Permite consultas SQL directas, exploración de esquemas y metadatos de tablas."
+    },
+    "postgres-luca": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://consultas@localhost:5432/luca"
+      ],
+      "description": "Servidor MCP PostgreSQL para la base de datos de facturación electrónica luca (solo lectura)."
+    },
+    "dbhub-multi": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@bytebase/dbhub",
+        "--dsn",
+        "postgresql://consultas@localhost:5432/genesys"
+      ],
+      "description": "DBHub de Bytebase — servidor MCP universal para bases de datos. Zero dependencias, eficiente en tokens. Soporta exploración de esquemas, consultas y análisis."
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/jose/Documentos/sandbox/ecuasanitas"
+      ],
+      "description": "Acceso al sistema de archivos del proyecto para leer/escribir scripts SQL."
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "description": "Grafo de conocimiento persistente — almacena contexto sobre el modelo de datos, relaciones entre tablas y patrones de consulta frecuentes."
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "Integración con GitHub — gestión de issues, PRs y repositorio para el workflow de Coding Agents."
+    },
+    "postgres-ops": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-postgres-ops"
+      ],
+      "env": {
+        "PG_HOST": "localhost",
+        "PG_PORT": "5432",
+        "PG_USER": "consultas",
+        "PG_DATABASE": "genesys"
+      },
+      "description": "PostgreSQL Ops — 30+ herramientas profesionales de DBA: análisis de rendimiento, detección de bloat, monitoreo de autovacuum, introspección de esquemas. Compatible con PostgreSQL 12+."
+    }
+  }
+}
+
