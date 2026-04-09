@@ -32,44 +32,44 @@ ORDER BY ordinal_position;
 
 -- 4. Índices existentes
 SELECT
-    indexname,
-    indexdef,
-    pg_size_pretty(pg_relation_size(indexrelid)) AS tamaño_indice
-FROM pg_indexes
-JOIN pg_class ON pg_class.relname = indexname
-WHERE schemaname = 'public'
-  AND tablename = 'detalle';
+    i.indexname,
+    i.indexdef,
+    pg_size_pretty(pg_relation_size(c.oid)) AS tamaño_indice
+FROM pg_indexes i
+LEFT JOIN pg_class c ON c.relname = i.indexname
+WHERE i.schemaname = 'public'
+  AND i.tablename = 'detalle';
 
 -- 5. Estadísticas de uso de índices
 SELECT
-    schemaname,
-    tablename,
-    indexname,
-    idx_scan AS veces_usado,
-    idx_tup_read AS registros_leidos,
-    idx_tup_fetch AS registros_obtenidos,
-    pg_size_pretty(pg_relation_size(indexrelid)) AS tamaño
-FROM pg_stat_user_indexes
-WHERE schemaname = 'public'
-  AND tablename = 'detalle'
-ORDER BY idx_scan DESC;
+    s.schemaname,
+    s.relname AS tablename,
+    s.indexrelname AS indexname,
+    s.idx_scan AS veces_usado,
+    s.idx_tup_read AS registros_leidos,
+    s.idx_tup_fetch AS registros_obtenidos,
+    pg_size_pretty(pg_relation_size(s.indexrelid)) AS tamaño
+FROM pg_stat_user_indexes s
+WHERE s.schemaname = 'public'
+  AND s.relname = 'detalle'
+ORDER BY s.idx_scan DESC;
 
 -- 6. Índices NO usados (candidatos a eliminar)
 SELECT
-    schemaname,
-    tablename,
-    indexname,
-    pg_size_pretty(pg_relation_size(indexrelid)) AS tamaño_desperdiciado
-FROM pg_stat_user_indexes
-WHERE schemaname = 'public'
-  AND tablename = 'detalle'
-  AND idx_scan = 0
-  AND indexname NOT LIKE '%pkey%';
+    s.schemaname,
+    s.relname AS tablename,
+    s.indexrelname AS indexname,
+    pg_size_pretty(pg_relation_size(s.indexrelid)) AS tamaño_desperdiciado
+FROM pg_stat_user_indexes s
+WHERE s.schemaname = 'public'
+  AND s.relname = 'detalle'
+  AND s.idx_scan = 0
+  AND s.indexrelname NOT LIKE '%pkey%';
 
 -- 7. Análisis de bloating (hinchazón de tabla)
 SELECT
     schemaname,
-    tablename,
+    relname AS tablename,
     pg_size_pretty(pg_relation_size(relid)) AS tamaño_actual,
     ROUND(100 * pg_relation_size(relid) / NULLIF(pg_total_relation_size(relid), 0), 2) AS porcentaje_tabla,
     n_dead_tup AS tuplas_muertas,
@@ -81,27 +81,31 @@ SELECT
     last_autoanalyze
 FROM pg_stat_user_tables
 WHERE schemaname = 'public'
-  AND tablename = 'detalle';
+  AND relname = 'detalle';
 
 -- 8. Consultas lentas relacionadas con la tabla detalle
+-- NOTA: Esta consulta requiere que pg_stat_statements esté habilitado
+-- Si falla, coméntala y continúa con las demás
+/*
 SELECT
     query,
     calls AS veces_ejecutada,
-    ROUND(total_exec_time::numeric, 2) AS tiempo_total_ms,
-    ROUND(mean_exec_time::numeric, 2) AS tiempo_promedio_ms,
-    ROUND(max_exec_time::numeric, 2) AS tiempo_maximo_ms,
-    ROUND(stddev_exec_time::numeric, 2) AS desviacion_std_ms,
+    ROUND(total_time::numeric, 2) AS tiempo_total_ms,
+    ROUND(mean_time::numeric, 2) AS tiempo_promedio_ms,
+    ROUND(max_time::numeric, 2) AS tiempo_maximo_ms,
+    ROUND(stddev_time::numeric, 2) AS desviacion_std_ms,
     rows AS filas_retornadas
 FROM pg_stat_statements
 WHERE query ILIKE '%detalle%'
   AND query NOT ILIKE '%pg_stat%'
-ORDER BY mean_exec_time DESC
+ORDER BY mean_time DESC
 LIMIT 20;
+*/
 
 -- 9. Verificar si necesita VACUUM
 SELECT
     schemaname,
-    tablename,
+    relname AS tablename,
     n_live_tup AS tuplas_vivas,
     n_dead_tup AS tuplas_muertas,
     CASE
@@ -113,9 +117,9 @@ SELECT
     last_autoanalyze
 FROM pg_stat_user_tables
 WHERE schemaname = 'public'
-  AND tablename = 'detalle';
+  AND relname = 'detalle';
 
--- 10. Columnas más consultadas (requiere habilitar track_io_timing)
+-- 10. Columnas más consultadas
 SELECT
     attname AS columna,
     n_distinct AS valores_distintos,
@@ -126,4 +130,3 @@ FROM pg_stats
 WHERE schemaname = 'public'
   AND tablename = 'detalle'
 ORDER BY n_distinct DESC;
-

@@ -1,6 +1,6 @@
 ----------------- script para usuarios activos fin de mes se entrga a Rubén ----------
 SELECT
-    dru.id,
+    '2025-03-01' AS FECHA_REPORTE,
     dru.tipousuario,
     dru.idafiliacion,
     dru.fechaalta,
@@ -67,6 +67,8 @@ left join usuario u on u.id = ac.usuario_id
 left join entidad vend on vend.id = u.entidad_id
 left join declaracionembarazo de on de.afiliacion_id = a.id
 WHERE reporteusuario_id = (select id from reporteusuario where fechareporte = '2025-03-01')
+and dru.tipousuario in ('ACT_ANTIGUOS','ACT_NUEVOS','TRASPASOS_NUEVOS')
+AND dru.fechareporte = '2025-03-01'
 
 
 

@@ -572,14 +572,141 @@ select * from entidad where numero = '0953380045'
 
 select * from comision order by 1 desc
 
+select * from revisionmedica where fecharegistro >= '2025-02-26 08:53:33.685000' order by 1 desc
+
+select * from preexistencia where fechacreacion >= '2025-02-26 10:53:46.972000' order by 1 desc
+
+select * from preexistencia order by 1 desc
+
+select * from coberturacontratada where afiliacion_id in (190007310237428,190007310237429)
+
+select * from coberturacontratada where familia_id = 190007480634 and estadocoberturacontratada = 'ACT'
+
+select * from asesorcomercial where id = 3697
+
+select * from supervision where supervisado_id = 5333
+
+
+-----------------------migracion fecha pago coberturas-----------------------
+select * from afiliacion where id = 190007310237428
+
+select id from afiliacion where afiliado_id = (select afiliado_id from afiliacion where id = 190007310237428) and estadoafiliacion = 'EXC' and fechaexclusion = '2025-02-01' order by 1 desc limit 1;
+
+select * from coberturacontratada where afiliacion_id = (select id from afiliacion where afiliado_id = (select afiliado_id from afiliacion where id = 190007310237428) and estadoafiliacion = 'EXC' and fechaexclusion = '2025-02-01' order by 1 desc limit 1) and estadocoberturacontratada = 'EXC' and fechaexclusion = '2025-01-31' and codigoservicio ilike '%ap%'
+
+
+SELECT
+    cc.id,
+    cc.codigoservicio,
+    cc.pago,
+    (SELECT codigoservicio
+     FROM coberturacontratada
+     WHERE afiliacion_id = (SELECT id
+                            FROM afiliacion
+                            WHERE afiliado_id = (SELECT afiliado_id
+                                                 FROM afiliacion
+                                                 WHERE id = cc.afiliacion_id)
+                              AND estadoafiliacion = 'EXC'
+                              AND fechaexclusion = '2025-02-01'
+                            ORDER BY 1 DESC
+                            LIMIT 1)
+       AND estadocoberturacontratada = 'EXC'
+       AND fechaexclusion = '2025-01-31'
+       AND codigoservicio ILIKE SUBSTRING(cc.codigoservicio FROM 1 FOR 2) || '%'
+     LIMIT 1) AS codigo_servicio_subconsulta,
+    (SELECT pago
+     FROM coberturacontratada
+     WHERE afiliacion_id = (SELECT id
+                            FROM afiliacion
+                            WHERE afiliado_id = (SELECT afiliado_id
+                                                 FROM afiliacion
+                                                 WHERE id = cc.afiliacion_id)
+                              AND estadoafiliacion = 'EXC'
+                              AND fechaexclusion = '2025-02-01'
+                            ORDER BY 1 DESC
+                            LIMIT 1)
+       AND estadocoberturacontratada = 'EXC'
+       AND fechaexclusion = '2025-01-31'
+       AND codigoservicio ILIKE SUBSTRING(cc.codigoservicio FROM 1 FOR 2) || '%'
+     LIMIT 1) AS pago_subconsulta
+FROM coberturacontratada cc
+WHERE cc.afiliacion_id in (
+190007310237428,
+190007310237431
+);
 
 
 
+WITH afiliacion_excluida AS (
+    SELECT id, afiliado_id
+    FROM afiliacion
+    WHERE estadoafiliacion = 'EXC'
+      AND fechaexclusion = '2025-02-01'
+),
+cobertura_excluida AS (
+         SELECT afiliacion_id, codigoservicio, pago
+         FROM coberturacontratada
+         WHERE estadocoberturacontratada = 'EXC'
+           AND fechaexclusion = '2025-01-31'
+     )
+SELECT
+    cc.id,
+    cc.codigoservicio,
+    cc.pago,
+    ce.codigoservicio AS codigo_servicio_subconsulta,
+    ce.pago AS pago_subconsulta
+FROM coberturacontratada cc
+LEFT JOIN afiliacion_excluida ae ON ae.afiliado_id = (
+    SELECT afiliado_id
+    FROM afiliacion
+    WHERE id = cc.afiliacion_id
+)
+LEFT JOIN cobertura_excluida ce ON ce.afiliacion_id = ae.id
+    AND ce.codigoservicio ILIKE SUBSTRING(cc.codigoservicio FROM 1 FOR 2) || '%'
+WHERE ce.codigoservicio is not null
+and ce.pago is not null
+and cc.afiliacion_id IN (
+                           190007310237428,
+                           190007310237429,
+                           190007310237431,
+                                 190007310237710,
+                           190007310237704,
+                           190007310237705,
+                           190007310237706
+    );
 
+select fechaultimamodificacion,* from coberturacontratada order by 1 desc limit 5  --2025-02-20 22:58:31.617000
 
+    select * from entidad where numero = '1712025947'
 
+select * from afiliacion where afiliado_id = 10482
 
+select * from coberturacontratada where afiliacion_id = 190007310236991
 
+select * from coordenadascontrato order by 1 desc
 
+select * from condicionintegracion
 
+SELECT DISTINCT(email) from entidad
 
+select * from contrato where numero = 518888;
+
+select * from afiliacion where contrato_id =1919221
+
+select * from preexistencia where carencia is not null
+
+select * from entidad where nombre ilike '%heredia cruz%'
+
+select * from notificacionmanual where numerocontrato = 518888
+
+select * from preexistencia where id = 570608
+
+update preexistencia set carencia = 'CON_CARENCIA' where carencia is null
+
+select * from condicionintegracion order by 1 desc
+
+select * from coordenadascontrato order by 1 desc
+
+select * from rrhhdescuentoempleado where rrhhDescuentoEmpleado_id is null
+
+select * from rrhhdescuentoempleado

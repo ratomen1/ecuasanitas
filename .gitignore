@@ -14,6 +14,10 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Entornos virtuales Python
+venv/
+.venv/
+
 # Archivos de sistema
 .DS_Store
 Thumbs.db
@@ -25,4 +29,3 @@ Thumbs.db
 *.csv
 *.xlsx
 !_read_excel_info.py
-

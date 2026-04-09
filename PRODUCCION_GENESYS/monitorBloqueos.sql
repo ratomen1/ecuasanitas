@@ -1,6 +1,7 @@
 
 
-SELECT * FROM pg_stat_activity a WHERE a.wait_event_type = 'Lock' ORDER BY backend_start ASC
+-- PG 9.5: usar "waiting" en lugar de "wait_event_type = 'Lock'"
+SELECT * FROM pg_stat_activity a WHERE a.waiting = TRUE ORDER BY backend_start ASC
 
 SELECT * FROM pg_stat_activity a WHERE a.backend_xmin IS NOT NULL --AND client_port IN (-1)
 

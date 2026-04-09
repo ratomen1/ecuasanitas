@@ -11,7 +11,7 @@ FROM
         LEFT JOIN preventaweb p ON p.numerocontrato = c.numero
         LEFT JOIN nivel n ON n.id = c.nivel_id AND n.nombreplan ILIKE '%pool%'
 WHERE
-    o.fechapagocomision = '2024-11-01'
+    o.fechapagocomision = '2026-01-01'
   AND o.servicio_id = 76
   AND n.nombreplan ILIKE '%pool%'
 --AND c.numero = 603251

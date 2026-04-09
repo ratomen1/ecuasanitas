@@ -31,3 +31,8 @@ WHERE a.activo = TRUE
   AND u.activo = TRUE
 --AND eta.clave = 'INTERNO'
 
+select * from coordenadascontrato
+
+select * from preventaweb where id = 163552
+
+select * from ventawebincompleta order by 1 desc

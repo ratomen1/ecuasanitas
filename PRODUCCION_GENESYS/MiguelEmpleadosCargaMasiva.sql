@@ -37,7 +37,7 @@ SELECT
     '' as contratantefamilia,
     '' as parentescocontratante
 FROM contrato c
-left join afiliacion a on c.id = a.contrato_id and a.estadoafiliacion = 'ACT'
+left join afiliacion a on c.id = a.contrato_id and a.estadoafiliacion = 'REG'
 left join titular tf on a.familia_id = tf.familia_id
 left join entidad etf on tf.entidad_id = etf.id
 left join familia f on a.familia_id = f.id
@@ -50,13 +50,13 @@ left join LATERAL (
         STRING_AGG(cc.codigoservicio::text, ',') AS codigoservicio
     FROM coberturacontratada cc
     WHERE cc.afiliacion_id = a.id
-      AND cc.estadocoberturacontratada = 'ACT'
+      AND cc.estadocoberturacontratada = 'REG'
       AND cc.coberturaimplicita = FALSE
     GROUP BY cc.afiliacion_id
     ) as coberturas on coberturas.afiliacion_id = a.id
-WHERE c.numero in (607165)
-and a.estadoafiliacion = 'ACT'
-and c.estado in ('ACT','SUS');
+WHERE c.id in (2009128)
+and a.estadoafiliacion = 'REG'
+and c.estado in ('REG');
 
 
 SELECT

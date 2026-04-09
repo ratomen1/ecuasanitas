@@ -4,7 +4,7 @@ SELECT
              f.numero AS familia,
              A.numero AS afiliado,
              cn.tipoPlan,
-             (SELECT obtener_edad( e.fechanacimiento,'2024-11-01' )) AS edad,
+             (SELECT obtener_edad( e.fechanacimiento,'2026-01-01' )) AS edad,
              s.codigo,
              e.discapacitado,
              a.antiguedad_id,
@@ -26,7 +26,7 @@ SELECT
              CAST(nna.nivel AS int8) AS nivelnoaplicaId,
              c.observacion AS observacionContrato,
              p.tipocontrato AS plantipo,
-             (SELECT string_agg(tiposervicio, ',') FROM promocionweb p WHERE '2024-11-01' BETWEEN p.desde AND p.hasta) AS servicioPromocion,
+             (SELECT string_agg(tiposervicio, ',') FROM promocionweb p WHERE '2026-01-01' BETWEEN p.desde AND p.hasta) AS servicioPromocion,
              c.id AS contratoId,
              o.id,
              e.nombre,
@@ -81,7 +81,7 @@ SELECT
 FROM
     obligacion o
         LEFT JOIN solicitudvinculacion sv ON sv.contratoid = o.contrato_id AND sv.numerosolicitud = o.numerosolicitud
-        LEFT JOIN solicitudtraspaso st ON st.contratonuevoid = o.contrato_id AND st.fecha = '2024-11-01' AND st.numerosolicitud = o.numerosolicitud
+        LEFT JOIN solicitudtraspaso st ON st.contratonuevoid = o.contrato_id AND st.fecha = '2026-01-01' AND st.numerosolicitud = o.numerosolicitud
         LEFT JOIN entrada sancion ON sancion.id = sv.sancion_id
         LEFT JOIN detalle d ON d.obligacion_id = o.ID
         LEFT JOIN afiliacion A ON A.ID = d.afiliacion_id
@@ -146,14 +146,14 @@ FROM
         LEFT JOIN contratoNivel cn ON cn.contrato_id = c.id
         LEFT JOIN servicio s ON s.id = o.servicio_id
         LEFT JOIN (
-        SELECT * FROM calculo_reingreso('2024-11-01')
+        SELECT * FROM calculo_reingreso('2026-01-01')
     )r ON r.contrato = c.numero AND r.familia = (CASE WHEN c.tipoContrato = 'C' THEN f.numero ELSE 0 END)
         AND r.afiliacion = a.numero
         LEFT JOIN asesorcomercial vd ON vd.id = c.vendedor_id
         LEFT JOIN usuario uvd ON uvd.id = vd.usuario_id
         LEFT JOIN entidad uvde ON uvde.id = uvd.entidad_id
 WHERE
-    o.fechapagocomision = '2024-11-01'
+    o.fechapagocomision = '2026-01-01'
   AND d.afiliacion_id IS NOT NULL
   AND d.activo = TRUE
 ORDER BY

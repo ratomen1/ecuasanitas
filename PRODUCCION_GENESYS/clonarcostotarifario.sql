@@ -76,7 +76,15 @@ BEGIN
                             (id, genero, preciocompra, valor, rangocosto_id, valor_con_descuento)
                             SELECT
                                 costogenero_id, genero, preciocompra,
-                                valor , rango_id_nuevo, (valor_con_descuento+ incremento) -- Aplica el incremento al valor
+                                CASE
+                                    WHEN valor_con_descuento IS NULL THEN valor + incremento
+                                    ELSE valor
+                                END,
+                                rango_id_nuevo,
+                                CASE
+                                    WHEN valor_con_descuento IS NOT NULL THEN valor_con_descuento + incremento
+                                    ELSE NULL
+                                END
                             FROM public.costogenero
                             WHERE rangocosto_id = r_rango.id AND genero = genero_letra; -- Obtiene datos del género correspondiente en el rango original
 
@@ -99,11 +107,15 @@ BEGIN
                 ALTER FUNCTION clonarcostotarifario(char, char, numeric) OWNER TO postgres; -- Asigna la propiedad de la función al usuario postgres
 
 --select clonarcostotarifario('8690', '2025-06-30', 3);
-
+/*
 select * from tarifario
 
 select * from costo where tarifario_id = (select id from tarifario where codigo = '8690')  --5638
 
 select * from rangocosto where costo_id = 5638
 
-select * from costogenero where rangocosto_id in (select id from rangocosto where costo_id = 5638)
+select * from costogenero where rangocosto_id in (select id from rangocosto where costo_id = 5638)*/
+
+select * from costo order by 1 desc
+
+select * from rangocosto order by 1 desc
